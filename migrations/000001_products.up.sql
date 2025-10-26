@@ -1,0 +1,55 @@
+BEGIN;
+
+CREATE TABLE IF NOT EXISTS products (
+    product_id UUID PRIMARY KEY,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP DEFAULT NULL,
+
+    brand_id UUID,
+    category_id UUID,
+    shop_id UUID,
+    
+    name VARCHAR(255),
+    sku VARCHAR(100),
+    description TEXT,
+    is_active BOOLEAN,
+    status INTEGER
+);
+
+CREATE TABLE IF NOT EXISTS brands (
+    brand_id UUID NOT NULL PRIMARY KEY,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP DEFAULT NULL,
+
+    name VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS categories (
+    category_id UUID NOT NULL PRIMARY KEY,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP DEFAULT NULL,
+
+    parent_id UUID,
+
+    name VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS product_images (
+    image_id UUID NOT NULL PRIMARY KEY,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP DEFAULT NULL,
+
+    product_id UUID NOT NULL,
+    variant_id UUID,
+
+    image_url TEXT NOT NULL,
+    is_primary BOOLEAN NOT NULL
+);
+
+COMMIT;

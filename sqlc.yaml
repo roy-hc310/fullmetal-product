@@ -1,0 +1,11 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    schema: 
+      - "migrations/000001_products.up.sql"
+    queries: "modules/module_product/entity/queries.sql"
+    gen:
+      go:
+        package: "entity"
+        out: "modules/module_product/entity"
+        sql_package: "pgx/v5"
