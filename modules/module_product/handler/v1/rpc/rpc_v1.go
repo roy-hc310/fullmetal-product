@@ -11,7 +11,6 @@ import (
 	"github.com/roy-hc310/fullmetal-product/pkg/config"
 	"github.com/roy-hc310/fullmetal-product/pkg/gen/kitex/rpc_product"
 	"github.com/roy-hc310/fullmetal-product/pkg/gen/kitex/rpc_product/productservice"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type ProductRPC struct {
@@ -30,53 +29,131 @@ func NewProductRPC(env *config.Env, svr *server.Server, productService service.P
 }
 
 func (p *ProductRPC) CreateProduct(ctx context.Context, req *rpc_product.CreateProductRequest) (res *rpc_product.CreateProductResponse, err error) {
-	res = &rpc_product.CreateProductResponse{}
+	res = &rpc_product.CreateProductResponse{
+		Data: &rpc_product.ProductID{},
+		Meta: &rpc_product.ResponseMeta{},
+	}
 
 	product := &dto_v1.CreateProductRequest{}
 	if err := copier.Copy(product, req); err != nil {
-		return nil, err
+		res.Meta.Errors = append(res.Meta.Errors, err.Error())
+		return res, err
 	}
 
-	result, _, _ := p.ProductService.CreateProduct(ctx, product)
-	res.Id = result
+	result, traceID, err := p.ProductService.CreateProduct(ctx, product)
+	if err != nil {
+		res.Meta.Errors = append(res.Meta.Errors, err.Error())
+		return res, err
+	}
+
+	res.Data.Id = result
+	res.Meta.TraceId = traceID
+	res.Meta.Success = true
+
 	return res, nil
 }
 
 func (p *ProductRPC) DeleteProduct(ctx context.Context, req *rpc_product.DeleteProductRequest) (res *rpc_product.DeleteProductResponse, err error) {
-	res = &rpc_product.DeleteProductResponse{}
-
-	result, _, err := p.ProductService.DeleteProduct(ctx, req.Id)
-	if err != nil {
-		return nil, err
+	res = &rpc_product.DeleteProductResponse{
+		Data: &rpc_product.ProductID{},
+		Meta: &rpc_product.ResponseMeta{},
 	}
-	res.Id = result
+
+	result, traceID, err := p.ProductService.DeleteProduct(ctx, req.Id)
+	if err != nil {
+		res.Meta.Errors = append(res.Meta.Errors, err.Error())
+		return res, err
+	}
+
+	res.Data.Id = result
+	res.Meta.TraceId = traceID
+	res.Meta.Success = true
+
 	return res, nil
 }
 
 func (p *ProductRPC) GetDetailProduct(ctx context.Context, req *rpc_product.GetDetailProductRequest) (res *rpc_product.GetDetailProductResponse, err error) {
-	res = &rpc_product.GetDetailProductResponse{}
+	res = &rpc_product.GetDetailProductResponse{
+		// Data: &rpc_product.Product{},
+		Meta: &rpc_product.ResponseMeta{},
+	}
 
-	result, _, err := p.ProductService.GetDetailProduct(ctx, req.Id)
+	result, traceID, err := p.ProductService.GetDetailProduct(ctx, req.Id)
 	if err != nil {
-		return nil, err
+		res.Meta.Errors = append(res.Meta.Errors, err.Error())
+		return res, nil
 	}
 
-	if err := copier.Copy(res, result); err != nil {
-		return nil, err
+	if result != nil {
+		res.Data = &rpc_product.Product{}
+		err = copier.Copy(&res.Data, result)
+		if err != nil {
+			res.Meta.Errors = append(res.Meta.Errors, err.Error())
+			return res, nil
+		}
 	}
-	res.CreatedAt = timestamppb.New(*result.CreatedAt)
-	res.UpdatedAt = timestamppb.New(*result.UpdatedAt)
-	res.BrandId = result.BrandID
-	res.CategoryId = result.CategoryID
-	res.ShopId = result.ShopID
-	res.Name = result.Name
-	res.Sku = result.Sku
+
+	res.Meta.TraceId = traceID
+	res.Meta.Success = true
 
 	return res, nil
 }
 func (p *ProductRPC) GetListProduct(ctx context.Context, req *rpc_product.GetListProductRequest) (res *rpc_product.GetListProductResponse, err error) {
-	return
+	res = &rpc_product.GetListProductResponse{
+		Data:       []*rpc_product.Product{},
+		Meta:       &rpc_product.ResponseMeta{},
+		Pagination: &rpc_product.PaginationResponse{},
+	}
+
+	query := &dto_v1.GetListProductRequest{}
+	err = copier.Copy(&query, req)
+	if err != nil {
+		res.Meta.Errors = append(res.Meta.Errors, err.Error())
+		return res, nil
+	}
+
+	result, pagination, traceID, err := p.ProductService.GetListProduct(ctx, query)
+	if err != nil {
+		res.Meta.Errors = append(res.Meta.Errors, err.Error())
+		return res, nil
+	}
+
+	err = copier.Copy(&res.Data, result)
+	if err != nil {
+		res.Meta.Errors = append(res.Meta.Errors, err.Error())
+		return res, nil
+	}
+
+	res.Meta.TraceId = traceID
+	res.Meta.Success = true
+	res.Pagination.NextCursor = pagination.NextCursor
+	res.Pagination.PrevCursor = pagination.PrevCursor
+	res.Pagination.Total = pagination.Total
+
+	return res, nil
 }
+
 func (p *ProductRPC) UpdateProduct(ctx context.Context, req *rpc_product.UpdateProductRequest) (res *rpc_product.UpdateProductResponse, err error) {
-	return
+	res = &rpc_product.UpdateProductResponse{
+		Data: &rpc_product.ProductID{},
+		Meta: &rpc_product.ResponseMeta{},
+	}
+
+	product := map[string]interface{}{}
+	if err := copier.Copy(&product, req); err != nil {
+		res.Meta.Errors = append(res.Meta.Errors, err.Error())
+		return res, err
+	}
+
+	result, traceID, err := p.ProductService.UpdateProduct(ctx, product)
+	if err != nil {
+		res.Meta.Errors = append(res.Meta.Errors, err.Error())
+		return res, err
+	}
+
+	res.Data.Id = result
+	res.Meta.TraceId = traceID
+	res.Meta.Success = true
+
+	return res, nil
 }

@@ -9,15 +9,85 @@ import (
 	"github.com/cloudwego/prutal"
 )
 
+type ResponseMeta struct {
+	TraceId string   `protobuf:"bytes,1,opt,name=trace_id" json:"trace_id,omitempty"`
+	Success bool     `protobuf:"varint,2,opt,name=success" json:"success,omitempty"`
+	Errors  []string `protobuf:"bytes,3,rep,name=errors" json:"errors,omitempty"`
+}
+
+func (x *ResponseMeta) Reset() { *x = ResponseMeta{} }
+
+func (x *ResponseMeta) Marshal(in []byte) ([]byte, error) { return prutal.MarshalAppend(in, x) }
+
+func (x *ResponseMeta) Unmarshal(in []byte) error { return prutal.Unmarshal(in, x) }
+
+func (x *ResponseMeta) GetTraceId() string {
+	if x != nil {
+		return x.TraceId
+	}
+	return ""
+}
+
+func (x *ResponseMeta) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *ResponseMeta) GetErrors() []string {
+	if x != nil {
+		return x.Errors
+	}
+	return nil
+}
+
+type PaginationResponse struct {
+	NextCursor string `protobuf:"bytes,1,opt,name=next_cursor" json:"next_cursor,omitempty"`
+	PrevCursor string `protobuf:"bytes,2,opt,name=prev_cursor" json:"prev_cursor,omitempty"`
+	Total      int64  `protobuf:"varint,3,opt,name=total" json:"total,omitempty"`
+}
+
+func (x *PaginationResponse) Reset() { *x = PaginationResponse{} }
+
+func (x *PaginationResponse) Marshal(in []byte) ([]byte, error) { return prutal.MarshalAppend(in, x) }
+
+func (x *PaginationResponse) Unmarshal(in []byte) error { return prutal.Unmarshal(in, x) }
+
+func (x *PaginationResponse) GetNextCursor() string {
+	if x != nil {
+		return x.NextCursor
+	}
+	return ""
+}
+
+func (x *PaginationResponse) GetPrevCursor() string {
+	if x != nil {
+		return x.PrevCursor
+	}
+	return ""
+}
+
+func (x *PaginationResponse) GetTotal() int64 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
 type Product struct {
-	BrandId     string `protobuf:"bytes,1,opt,name=brand_id" json:"brand_id,omitempty"`
-	CategoryId  string `protobuf:"bytes,2,opt,name=category_id" json:"category_id,omitempty"`
-	ShopId      string `protobuf:"bytes,3,opt,name=shop_id" json:"shop_id,omitempty"`
-	Name        string `protobuf:"bytes,4,opt,name=name" json:"name,omitempty"`
-	Sku         string `protobuf:"bytes,5,opt,name=sku" json:"sku,omitempty"`
-	Description string `protobuf:"bytes,6,opt,name=description" json:"description,omitempty"`
-	IsActive    bool   `protobuf:"varint,7,opt,name=is_active" json:"is_active,omitempty"`
-	Status      int64  `protobuf:"varint,8,opt,name=status" json:"status,omitempty"`
+	Id          string                 `protobuf:"bytes,1,opt,name=id" json:"id,omitempty"`
+	CreatedAt   *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=created_at" json:"created_at,omitempty"`
+	UpdatedAt   *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=updated_at" json:"updated_at,omitempty"`
+	DeletedAt   *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=deleted_at" json:"deleted_at,omitempty"`
+	BrandId     string                 `protobuf:"bytes,5,opt,name=brand_id" json:"brand_id,omitempty"`
+	CategoryId  string                 `protobuf:"bytes,6,opt,name=category_id" json:"category_id,omitempty"`
+	ShopId      string                 `protobuf:"bytes,7,opt,name=shop_id" json:"shop_id,omitempty"`
+	Name        string                 `protobuf:"bytes,8,opt,name=name" json:"name,omitempty"`
+	Sku         string                 `protobuf:"bytes,9,opt,name=sku" json:"sku,omitempty"`
+	Description string                 `protobuf:"bytes,10,opt,name=description" json:"description,omitempty"`
+	IsActive    bool                   `protobuf:"varint,11,opt,name=is_active" json:"is_active,omitempty"`
+	Status      int64                  `protobuf:"varint,12,opt,name=status" json:"status,omitempty"`
 }
 
 func (x *Product) Reset() { *x = Product{} }
@@ -25,6 +95,34 @@ func (x *Product) Reset() { *x = Product{} }
 func (x *Product) Marshal(in []byte) ([]byte, error) { return prutal.MarshalAppend(in, x) }
 
 func (x *Product) Unmarshal(in []byte) error { return prutal.Unmarshal(in, x) }
+
+func (x *Product) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *Product) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *Product) GetUpdatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
+func (x *Product) GetDeletedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.DeletedAt
+	}
+	return nil
+}
 
 func (x *Product) GetBrandId() string {
 	if x != nil {
@@ -173,7 +271,8 @@ func (x *CreateProductRequest) GetStatus() int64 {
 }
 
 type CreateProductResponse struct {
-	Id string `protobuf:"bytes,1,opt,name=id" json:"id,omitempty"`
+	Data *ProductID    `protobuf:"bytes,1,opt,name=data" json:"data,omitempty"`
+	Meta *ResponseMeta `protobuf:"bytes,2,opt,name=meta" json:"meta,omitempty"`
 }
 
 func (x *CreateProductResponse) Reset() { *x = CreateProductResponse{} }
@@ -184,11 +283,18 @@ func (x *CreateProductResponse) Marshal(in []byte) ([]byte, error) {
 
 func (x *CreateProductResponse) Unmarshal(in []byte) error { return prutal.Unmarshal(in, x) }
 
-func (x *CreateProductResponse) GetId() string {
+func (x *CreateProductResponse) GetData() *ProductID {
 	if x != nil {
-		return x.Id
+		return x.Data
 	}
-	return ""
+	return nil
+}
+
+func (x *CreateProductResponse) GetMeta() *ResponseMeta {
+	if x != nil {
+		return x.Meta
+	}
+	return nil
 }
 
 type GetDetailProductRequest struct {
@@ -211,18 +317,8 @@ func (x *GetDetailProductRequest) GetId() string {
 }
 
 type GetDetailProductResponse struct {
-	ProductId   string                 `protobuf:"bytes,1,opt,name=product_id" json:"product_id,omitempty"`
-	CreatedAt   *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=created_at" json:"created_at,omitempty"`
-	UpdatedAt   *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=updated_at" json:"updated_at,omitempty"`
-	DeletedAt   *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=deleted_at" json:"deleted_at,omitempty"`
-	BrandId     string                 `protobuf:"bytes,5,opt,name=brand_id" json:"brand_id,omitempty"`
-	CategoryId  string                 `protobuf:"bytes,6,opt,name=category_id" json:"category_id,omitempty"`
-	ShopId      string                 `protobuf:"bytes,7,opt,name=shop_id" json:"shop_id,omitempty"`
-	Name        string                 `protobuf:"bytes,8,opt,name=name" json:"name,omitempty"`
-	Sku         string                 `protobuf:"bytes,9,opt,name=sku" json:"sku,omitempty"`
-	Description string                 `protobuf:"bytes,10,opt,name=description" json:"description,omitempty"`
-	IsActive    bool                   `protobuf:"varint,11,opt,name=is_active" json:"is_active,omitempty"`
-	Status      int64                  `protobuf:"varint,12,opt,name=status" json:"status,omitempty"`
+	Data *Product      `protobuf:"bytes,1,opt,name=data" json:"data,omitempty"`
+	Meta *ResponseMeta `protobuf:"bytes,2,opt,name=meta" json:"meta,omitempty"`
 }
 
 func (x *GetDetailProductResponse) Reset() { *x = GetDetailProductResponse{} }
@@ -233,96 +329,26 @@ func (x *GetDetailProductResponse) Marshal(in []byte) ([]byte, error) {
 
 func (x *GetDetailProductResponse) Unmarshal(in []byte) error { return prutal.Unmarshal(in, x) }
 
-func (x *GetDetailProductResponse) GetProductId() string {
+func (x *GetDetailProductResponse) GetData() *Product {
 	if x != nil {
-		return x.ProductId
-	}
-	return ""
-}
-
-func (x *GetDetailProductResponse) GetCreatedAt() *timestamppb.Timestamp {
-	if x != nil {
-		return x.CreatedAt
+		return x.Data
 	}
 	return nil
 }
 
-func (x *GetDetailProductResponse) GetUpdatedAt() *timestamppb.Timestamp {
+func (x *GetDetailProductResponse) GetMeta() *ResponseMeta {
 	if x != nil {
-		return x.UpdatedAt
+		return x.Meta
 	}
 	return nil
-}
-
-func (x *GetDetailProductResponse) GetDeletedAt() *timestamppb.Timestamp {
-	if x != nil {
-		return x.DeletedAt
-	}
-	return nil
-}
-
-func (x *GetDetailProductResponse) GetBrandId() string {
-	if x != nil {
-		return x.BrandId
-	}
-	return ""
-}
-
-func (x *GetDetailProductResponse) GetCategoryId() string {
-	if x != nil {
-		return x.CategoryId
-	}
-	return ""
-}
-
-func (x *GetDetailProductResponse) GetShopId() string {
-	if x != nil {
-		return x.ShopId
-	}
-	return ""
-}
-
-func (x *GetDetailProductResponse) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *GetDetailProductResponse) GetSku() string {
-	if x != nil {
-		return x.Sku
-	}
-	return ""
-}
-
-func (x *GetDetailProductResponse) GetDescription() string {
-	if x != nil {
-		return x.Description
-	}
-	return ""
-}
-
-func (x *GetDetailProductResponse) GetIsActive() bool {
-	if x != nil {
-		return x.IsActive
-	}
-	return false
-}
-
-func (x *GetDetailProductResponse) GetStatus() int64 {
-	if x != nil {
-		return x.Status
-	}
-	return 0
 }
 
 type GetListProductRequest struct {
-	Page    string `protobuf:"bytes,1,opt,name=page" json:"page,omitempty"`
-	Size    string `protobuf:"bytes,2,opt,name=size" json:"size,omitempty"`
-	Cursor  string `protobuf:"bytes,3,opt,name=cursor" json:"cursor,omitempty"`
-	Keyword string `protobuf:"bytes,4,opt,name=keyword" json:"keyword,omitempty"`
-	SortBy  string `protobuf:"bytes,5,opt,name=sort_by" json:"sort_by,omitempty"`
+	Page    *string `protobuf:"bytes,1,opt,name=page" json:"page,omitempty"`
+	Size    *string `protobuf:"bytes,2,opt,name=size" json:"size,omitempty"`
+	Cursor  *string `protobuf:"bytes,3,opt,name=cursor" json:"cursor,omitempty"`
+	SortBy  *string `protobuf:"bytes,4,opt,name=sort_by" json:"sort_by,omitempty"`
+	Keyword *string `protobuf:"bytes,5,opt,name=keyword" json:"keyword,omitempty"`
 }
 
 func (x *GetListProductRequest) Reset() { *x = GetListProductRequest{} }
@@ -334,46 +360,44 @@ func (x *GetListProductRequest) Marshal(in []byte) ([]byte, error) {
 func (x *GetListProductRequest) Unmarshal(in []byte) error { return prutal.Unmarshal(in, x) }
 
 func (x *GetListProductRequest) GetPage() string {
-	if x != nil {
-		return x.Page
+	if x != nil && x.Page != nil {
+		return *x.Page
 	}
 	return ""
 }
 
 func (x *GetListProductRequest) GetSize() string {
-	if x != nil {
-		return x.Size
+	if x != nil && x.Size != nil {
+		return *x.Size
 	}
 	return ""
 }
 
 func (x *GetListProductRequest) GetCursor() string {
-	if x != nil {
-		return x.Cursor
-	}
-	return ""
-}
-
-func (x *GetListProductRequest) GetKeyword() string {
-	if x != nil {
-		return x.Keyword
+	if x != nil && x.Cursor != nil {
+		return *x.Cursor
 	}
 	return ""
 }
 
 func (x *GetListProductRequest) GetSortBy() string {
-	if x != nil {
-		return x.SortBy
+	if x != nil && x.SortBy != nil {
+		return *x.SortBy
+	}
+	return ""
+}
+
+func (x *GetListProductRequest) GetKeyword() string {
+	if x != nil && x.Keyword != nil {
+		return *x.Keyword
 	}
 	return ""
 }
 
 type GetListProductResponse struct {
-	Page   string     `protobuf:"bytes,1,opt,name=page" json:"page,omitempty"`
-	Size   string     `protobuf:"bytes,2,opt,name=size" json:"size,omitempty"`
-	Cursor string     `protobuf:"bytes,3,opt,name=cursor" json:"cursor,omitempty"`
-	Total  string     `protobuf:"bytes,4,opt,name=total" json:"total,omitempty"`
-	Data   []*Product `protobuf:"bytes,5,rep,name=data" json:"data,omitempty"`
+	Data       []*Product          `protobuf:"bytes,1,rep,name=data" json:"data,omitempty"`
+	Meta       *ResponseMeta       `protobuf:"bytes,2,opt,name=meta" json:"meta,omitempty"`
+	Pagination *PaginationResponse `protobuf:"bytes,3,opt,name=pagination" json:"pagination,omitempty"`
 }
 
 func (x *GetListProductResponse) Reset() { *x = GetListProductResponse{} }
@@ -384,34 +408,6 @@ func (x *GetListProductResponse) Marshal(in []byte) ([]byte, error) {
 
 func (x *GetListProductResponse) Unmarshal(in []byte) error { return prutal.Unmarshal(in, x) }
 
-func (x *GetListProductResponse) GetPage() string {
-	if x != nil {
-		return x.Page
-	}
-	return ""
-}
-
-func (x *GetListProductResponse) GetSize() string {
-	if x != nil {
-		return x.Size
-	}
-	return ""
-}
-
-func (x *GetListProductResponse) GetCursor() string {
-	if x != nil {
-		return x.Cursor
-	}
-	return ""
-}
-
-func (x *GetListProductResponse) GetTotal() string {
-	if x != nil {
-		return x.Total
-	}
-	return ""
-}
-
 func (x *GetListProductResponse) GetData() []*Product {
 	if x != nil {
 		return x.Data
@@ -419,16 +415,30 @@ func (x *GetListProductResponse) GetData() []*Product {
 	return nil
 }
 
+func (x *GetListProductResponse) GetMeta() *ResponseMeta {
+	if x != nil {
+		return x.Meta
+	}
+	return nil
+}
+
+func (x *GetListProductResponse) GetPagination() *PaginationResponse {
+	if x != nil {
+		return x.Pagination
+	}
+	return nil
+}
+
 type UpdateProductRequest struct {
-	Product     string `protobuf:"bytes,1,opt,name=product" json:"product,omitempty"`
-	BrandId     string `protobuf:"bytes,2,opt,name=brand_id" json:"brand_id,omitempty"`
-	CategoryId  string `protobuf:"bytes,3,opt,name=category_id" json:"category_id,omitempty"`
-	ShopId      string `protobuf:"bytes,4,opt,name=shop_id" json:"shop_id,omitempty"`
-	Name        string `protobuf:"bytes,5,opt,name=name" json:"name,omitempty"`
-	Sku         string `protobuf:"bytes,6,opt,name=sku" json:"sku,omitempty"`
-	Description string `protobuf:"bytes,7,opt,name=description" json:"description,omitempty"`
-	IsActive    bool   `protobuf:"varint,8,opt,name=is_active" json:"is_active,omitempty"`
-	Status      int64  `protobuf:"varint,9,opt,name=status" json:"status,omitempty"`
+	Id          string  `protobuf:"bytes,1,opt,name=id" json:"id,omitempty"`
+	BrandId     *string `protobuf:"bytes,2,opt,name=brand_id" json:"brand_id,omitempty"`
+	CategoryId  *string `protobuf:"bytes,3,opt,name=category_id" json:"category_id,omitempty"`
+	ShopId      *string `protobuf:"bytes,4,opt,name=shop_id" json:"shop_id,omitempty"`
+	Name        *string `protobuf:"bytes,5,opt,name=name" json:"name,omitempty"`
+	Sku         *string `protobuf:"bytes,6,opt,name=sku" json:"sku,omitempty"`
+	Description *string `protobuf:"bytes,7,opt,name=description" json:"description,omitempty"`
+	IsActive    *bool   `protobuf:"varint,8,opt,name=is_active" json:"is_active,omitempty"`
+	Status      *int64  `protobuf:"varint,9,opt,name=status" json:"status,omitempty"`
 }
 
 func (x *UpdateProductRequest) Reset() { *x = UpdateProductRequest{} }
@@ -437,71 +447,72 @@ func (x *UpdateProductRequest) Marshal(in []byte) ([]byte, error) { return pruta
 
 func (x *UpdateProductRequest) Unmarshal(in []byte) error { return prutal.Unmarshal(in, x) }
 
-func (x *UpdateProductRequest) GetProduct() string {
+func (x *UpdateProductRequest) GetId() string {
 	if x != nil {
-		return x.Product
+		return x.Id
 	}
 	return ""
 }
 
 func (x *UpdateProductRequest) GetBrandId() string {
-	if x != nil {
-		return x.BrandId
+	if x != nil && x.BrandId != nil {
+		return *x.BrandId
 	}
 	return ""
 }
 
 func (x *UpdateProductRequest) GetCategoryId() string {
-	if x != nil {
-		return x.CategoryId
+	if x != nil && x.CategoryId != nil {
+		return *x.CategoryId
 	}
 	return ""
 }
 
 func (x *UpdateProductRequest) GetShopId() string {
-	if x != nil {
-		return x.ShopId
+	if x != nil && x.ShopId != nil {
+		return *x.ShopId
 	}
 	return ""
 }
 
 func (x *UpdateProductRequest) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *UpdateProductRequest) GetSku() string {
-	if x != nil {
-		return x.Sku
+	if x != nil && x.Sku != nil {
+		return *x.Sku
 	}
 	return ""
 }
 
 func (x *UpdateProductRequest) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *UpdateProductRequest) GetIsActive() bool {
-	if x != nil {
-		return x.IsActive
+	if x != nil && x.IsActive != nil {
+		return *x.IsActive
 	}
 	return false
 }
 
 func (x *UpdateProductRequest) GetStatus() int64 {
-	if x != nil {
-		return x.Status
+	if x != nil && x.Status != nil {
+		return *x.Status
 	}
 	return 0
 }
 
 type UpdateProductResponse struct {
-	Id string `protobuf:"bytes,1,opt,name=id" json:"id,omitempty"`
+	Data *ProductID    `protobuf:"bytes,1,opt,name=data" json:"data,omitempty"`
+	Meta *ResponseMeta `protobuf:"bytes,2,opt,name=meta" json:"meta,omitempty"`
 }
 
 func (x *UpdateProductResponse) Reset() { *x = UpdateProductResponse{} }
@@ -512,11 +523,18 @@ func (x *UpdateProductResponse) Marshal(in []byte) ([]byte, error) {
 
 func (x *UpdateProductResponse) Unmarshal(in []byte) error { return prutal.Unmarshal(in, x) }
 
-func (x *UpdateProductResponse) GetId() string {
+func (x *UpdateProductResponse) GetData() *ProductID {
 	if x != nil {
-		return x.Id
+		return x.Data
 	}
-	return ""
+	return nil
+}
+
+func (x *UpdateProductResponse) GetMeta() *ResponseMeta {
+	if x != nil {
+		return x.Meta
+	}
+	return nil
 }
 
 type DeleteProductRequest struct {
@@ -537,7 +555,8 @@ func (x *DeleteProductRequest) GetId() string {
 }
 
 type DeleteProductResponse struct {
-	Id string `protobuf:"bytes,1,opt,name=id" json:"id,omitempty"`
+	Data *ProductID    `protobuf:"bytes,1,opt,name=data" json:"data,omitempty"`
+	Meta *ResponseMeta `protobuf:"bytes,2,opt,name=meta" json:"meta,omitempty"`
 }
 
 func (x *DeleteProductResponse) Reset() { *x = DeleteProductResponse{} }
@@ -548,11 +567,18 @@ func (x *DeleteProductResponse) Marshal(in []byte) ([]byte, error) {
 
 func (x *DeleteProductResponse) Unmarshal(in []byte) error { return prutal.Unmarshal(in, x) }
 
-func (x *DeleteProductResponse) GetId() string {
+func (x *DeleteProductResponse) GetData() *ProductID {
 	if x != nil {
-		return x.Id
+		return x.Data
 	}
-	return ""
+	return nil
+}
+
+func (x *DeleteProductResponse) GetMeta() *ResponseMeta {
+	if x != nil {
+		return x.Meta
+	}
+	return nil
 }
 
 type ProductService interface {

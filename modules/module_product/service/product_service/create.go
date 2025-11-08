@@ -8,10 +8,11 @@ import (
 )
 
 func (s *ProductService) CreateProduct(ctx context.Context, data *dto_v1.CreateProductRequest) (res string, traceID string, err error) {
-	data.ProductID = uuid.NewString()
-	data.BrandID = uuid.NewString()
-	data.CategoryID = uuid.NewString()
-	data.ShopID = uuid.NewString()
+
+	data.BrandID = uuid.Must(uuid.NewV7()).String()
+	data.CategoryID = uuid.Must(uuid.NewV7()).String()
+	data.ShopID = uuid.Must(uuid.NewV7()).String()
+
 	res, err = s.ProductRepository.CreateProduct(ctx, data)
 	return res, traceID, err
 }

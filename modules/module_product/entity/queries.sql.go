@@ -8,57 +8,101 @@ package entity
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const countProduct = `-- name: CountProduct :one
+SELECT COUNT(*) FROM products
+WHERE deleted_at IS NULL
+`
+
+func (q *Queries) CountProduct(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, countProduct)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createProduct = `-- name: CreateProduct :one
 INSERT INTO products (
-  product_id, name, sku, description
+  id, 
+  brand_id, 
+  category_id, 
+  shop_id, 
+  name, 
+  sku, 
+  description, 
+  is_active, 
+  status
 ) VALUES (
-  $1, $2, $3, $4
+  $1, $2, $3, $4, $5, $6, $7, $8, $9
 )
-RETURNING product_id
+RETURNING id
 `
 
 type CreateProductParams struct {
-	ProductID   pgtype.UUID
-	Name        string
+	ID          uuid.UUID
+	BrandID     *uuid.UUID
+	CategoryID  *uuid.UUID
+	ShopID      *uuid.UUID
+	Name        pgtype.Text
 	Sku         pgtype.Text
 	Description pgtype.Text
+	IsActive    pgtype.Bool
+	Status      pgtype.Int4
 }
 
-func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (pgtype.UUID, error) {
+func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (uuid.UUID, error) {
 	row := q.db.QueryRow(ctx, createProduct,
-		arg.ProductID,
+		arg.ID,
+		arg.BrandID,
+		arg.CategoryID,
+		arg.ShopID,
 		arg.Name,
 		arg.Sku,
 		arg.Description,
+		arg.IsActive,
+		arg.Status,
 	)
-	var product_id pgtype.UUID
-	err := row.Scan(&product_id)
-	return product_id, err
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
 }
 
 const deleteProduct = `-- name: DeleteProduct :exec
-DELETE FROM products
-WHERE product_id = $1
+UPDATE products
+SET deleted_at = now()
+WHERE deleted_at IS NULL AND id = $1
 `
 
-func (q *Queries) DeleteProduct(ctx context.Context, productID pgtype.UUID) error {
-	_, err := q.db.Exec(ctx, deleteProduct, productID)
+func (q *Queries) DeleteProduct(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteProduct, id)
 	return err
 }
 
 const getDetailProduct = `-- name: GetDetailProduct :one
-SELECT product_id, created_at, updated_at, deleted_at, brand_id, category_id, shop_id, name, sku, description, is_active, status FROM products
-WHERE product_id = $1 LIMIT 1
+SELECT id, 
+  created_at, 
+  updated_at, 
+  deleted_at, 
+  brand_id, 
+  category_id, 
+  shop_id, 
+  name, 
+  sku, 
+  description, 
+  is_active, 
+  status
+FROM products
+WHERE deleted_at IS NULL AND id = $1
 `
 
-func (q *Queries) GetDetailProduct(ctx context.Context, productID pgtype.UUID) (Product, error) {
-	row := q.db.QueryRow(ctx, getDetailProduct, productID)
+func (q *Queries) GetDetailProduct(ctx context.Context, id uuid.UUID) (Product, error) {
+	row := q.db.QueryRow(ctx, getDetailProduct, id)
 	var i Product
 	err := row.Scan(
-		&i.ProductID,
+		&i.ID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
@@ -75,17 +119,51 @@ func (q *Queries) GetDetailProduct(ctx context.Context, productID pgtype.UUID) (
 }
 
 const getListProduct = `-- name: GetListProduct :many
-SELECT product_id, created_at, updated_at, deleted_at, brand_id, category_id, shop_id, name, sku, description, is_active, status FROM products
-LIMIT $1 OFFSET $2
+SELECT id, 
+  created_at, 
+  updated_at, 
+  deleted_at, 
+  brand_id, 
+  category_id, 
+  shop_id, 
+  name, 
+  sku, 
+  description, 
+  is_active, 
+  status 
+FROM products
+WHERE deleted_at IS NULL 
+AND ($1::uuid IS NULL OR shop_id = $1::uuid)
+AND (
+  $2::text IS NULL OR
+  ($3::text = 'id ASC' AND id::text > $2::text) OR
+  ($3::text = 'id DESC' AND id::text < $2::text) OR
+  ($3::text = 'updated_at ASC' AND updated_at > $2::timestamp) OR
+  ($3::text = 'updated_at DESC' AND updated_at < $2::timestamp)
+)
+ORDER BY
+  CASE WHEN $3::text = 'id ASC' THEN id::text END ASC,
+  CASE WHEN $3::text = 'id DESC' THEN id::text END DESC,
+  CASE WHEN $3::text = 'updated_at ASC' THEN updated_at END ASC,
+  CASE WHEN $3::text = 'updated_at DESC' THEN updated_at END DESC,
+  id ASC
+LIMIT COALESCE($4::int, 10)
 `
 
 type GetListProductParams struct {
-	Limit  int32
-	Offset int32
+	ShopID *uuid.UUID
+	Cursor pgtype.Text
+	SortBy pgtype.Text
+	Limit  pgtype.Int4
 }
 
 func (q *Queries) GetListProduct(ctx context.Context, arg GetListProductParams) ([]Product, error) {
-	rows, err := q.db.Query(ctx, getListProduct, arg.Limit, arg.Offset)
+	rows, err := q.db.Query(ctx, getListProduct,
+		arg.ShopID,
+		arg.Cursor,
+		arg.SortBy,
+		arg.Limit,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +172,7 @@ func (q *Queries) GetListProduct(ctx context.Context, arg GetListProductParams) 
 	for rows.Next() {
 		var i Product
 		if err := rows.Scan(
-			&i.ProductID,
+			&i.ID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
@@ -119,16 +197,33 @@ func (q *Queries) GetListProduct(ctx context.Context, arg GetListProductParams) 
 
 const updateProduct = `-- name: UpdateProduct :exec
 UPDATE products
-  set name = $2
-WHERE product_id = $1
+SET 
+  updated_at = now(),
+  name = COALESCE($2, name),
+  sku = COALESCE($3, sku),
+  description = COALESCE($4, description),
+  is_active = COALESCE($5, is_active),
+  status = COALESCE($6, status)
+WHERE id = $1 AND deleted_at IS NULL
 `
 
 type UpdateProductParams struct {
-	ProductID pgtype.UUID
-	Name      string
+	ID          uuid.UUID
+	Name        pgtype.Text
+	Sku         pgtype.Text
+	Description pgtype.Text
+	IsActive    pgtype.Bool
+	Status      pgtype.Int4
 }
 
 func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) error {
-	_, err := q.db.Exec(ctx, updateProduct, arg.ProductID, arg.Name)
+	_, err := q.db.Exec(ctx, updateProduct,
+		arg.ID,
+		arg.Name,
+		arg.Sku,
+		arg.Description,
+		arg.IsActive,
+		arg.Status,
+	)
 	return err
 }

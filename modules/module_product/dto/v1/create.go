@@ -1,10 +1,10 @@
 package dto_v1
 
 type CreateProductRequest struct {
-	ProductID   string
-	BrandID     string
-	CategoryID  string
-	ShopID      string
+	BrandID    string
+	CategoryID string
+	ShopID     string
+
 	Name        string
 	Sku         string
 	Description string

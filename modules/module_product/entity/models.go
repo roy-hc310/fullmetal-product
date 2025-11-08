@@ -5,11 +5,12 @@
 package entity
 
 import (
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Brand struct {
-	BrandID     pgtype.UUID
+	ID          uuid.UUID
 	CreatedAt   pgtype.Timestamp
 	UpdatedAt   pgtype.Timestamp
 	DeletedAt   pgtype.Timestamp
@@ -18,37 +19,37 @@ type Brand struct {
 }
 
 type Category struct {
-	CategoryID  pgtype.UUID
+	ID          uuid.UUID
 	CreatedAt   pgtype.Timestamp
 	UpdatedAt   pgtype.Timestamp
 	DeletedAt   pgtype.Timestamp
-	ParentID    pgtype.UUID
+	ParentID    *uuid.UUID
 	Name        string
 	Description string
 }
 
 type Product struct {
-	ProductID   pgtype.UUID
+	ID          uuid.UUID
 	CreatedAt   pgtype.Timestamp
 	UpdatedAt   pgtype.Timestamp
 	DeletedAt   pgtype.Timestamp
-	BrandID     pgtype.UUID
-	CategoryID  pgtype.UUID
-	ShopID      pgtype.UUID
-	Name        string
+	BrandID     *uuid.UUID
+	CategoryID  *uuid.UUID
+	ShopID      *uuid.UUID
+	Name        pgtype.Text
 	Sku         pgtype.Text
 	Description pgtype.Text
-	IsActive    bool
-	Status      int32
+	IsActive    pgtype.Bool
+	Status      pgtype.Int4
 }
 
 type ProductImage struct {
-	ImageID   pgtype.UUID
+	ID        uuid.UUID
 	CreatedAt pgtype.Timestamp
 	UpdatedAt pgtype.Timestamp
 	DeletedAt pgtype.Timestamp
-	ProductID pgtype.UUID
-	VariantID pgtype.UUID
+	ProductID uuid.UUID
+	VariantID *uuid.UUID
 	ImageUrl  string
 	IsPrimary bool
 }

@@ -9,3 +9,16 @@ sql:
         package: "entity"
         out: "modules/module_product/entity"
         sql_package: "pgx/v5"
+        overrides: 
+          - db_type: "uuid"
+            nullable: true
+            go_type: 
+              import: "github.com/google/uuid"
+              type: "UUID"
+              pointer: true
+          - db_type: "uuid"
+            nullable: false
+            go_type: 
+              import: "github.com/google/uuid"
+              type: "UUID"
+              pointer: false
