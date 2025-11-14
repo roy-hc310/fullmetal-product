@@ -5,13 +5,15 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/roy-hc310/fullmetal-product/pkg/config"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 type PostgresInfra struct {
-	DBWrite *pgxpool.Pool
-	DBRead  *pgxpool.Pool
+	DBWrite *gorm.DB
+	DBRead  *gorm.DB
 }
 
 func NewPostgresInfra(ctx context.Context) (*PostgresInfra, error) {
@@ -25,22 +27,24 @@ func NewPostgresInfra(ctx context.Context) (*PostgresInfra, error) {
 		config.GlobalEnv.DBWriteSchema,
 	)
 
-	dbWriteConfig, err := pgxpool.ParseConfig(dbWriteURL)
-	if err != nil {
-		return nil, err
-	}
-	dbWriteConfig.MaxConns = 10
-	dbWriteConfig.MinConns = 0
-	dbWriteConfig.MaxConnLifetime = time.Hour
-	dbWriteConfig.MaxConnIdleTime = time.Minute * 30
-	dbWriteConfig.HealthCheckPeriod = time.Minute * 5
-
-	dbWrite, err := pgxpool.NewWithConfig(context.Background(), dbWriteConfig)
+	dbWrite, err := gorm.Open(postgres.Open(dbWriteURL), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Warn),
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	if err := dbWrite.Ping(ctx); err != nil {
+	sqlDBWrite, err := dbWrite.DB()
+	if err != nil {
+		return nil, err
+	}
+	sqlDBWrite.SetMaxOpenConns(10)
+	sqlDBWrite.SetMaxIdleConns(5)
+	sqlDBWrite.SetConnMaxLifetime(time.Hour)
+	sqlDBWrite.SetConnMaxIdleTime(30 * time.Minute)
+
+	err = sqlDBWrite.Ping()
+	if err != nil {
 		return nil, err
 	}
 
@@ -55,22 +59,24 @@ func NewPostgresInfra(ctx context.Context) (*PostgresInfra, error) {
 		config.GlobalEnv.DBReadSchema,
 	)
 
-	dbReadConfig, err := pgxpool.ParseConfig(dbReadURL)
-	if err != nil {
-		return nil, err
-	}
-	dbReadConfig.MaxConns = 10
-	dbReadConfig.MinConns = 0
-	dbReadConfig.MaxConnLifetime = time.Hour
-	dbReadConfig.MaxConnIdleTime = time.Minute * 30
-	dbReadConfig.HealthCheckPeriod = time.Minute * 5
-
-	dbRead, err := pgxpool.NewWithConfig(context.Background(), dbReadConfig)
+	dbRead, err := gorm.Open(postgres.Open(dbReadURL), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Warn),
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	if err := dbRead.Ping(ctx); err != nil {
+	sqlDBRead, err := dbRead.DB()
+	if err != nil {
+		return nil, err
+	}
+	sqlDBRead.SetMaxOpenConns(10)
+	sqlDBRead.SetMaxIdleConns(5)
+	sqlDBRead.SetConnMaxLifetime(time.Hour)
+	sqlDBRead.SetConnMaxIdleTime(30 * time.Minute)
+
+	err = sqlDBRead.Ping()
+	if err != nil {
 		return nil, err
 	}
 
@@ -82,10 +88,12 @@ func NewPostgresInfra(ctx context.Context) (*PostgresInfra, error) {
 
 func (p *PostgresInfra) Shutdown(ctx context.Context) error {
 	if p.DBWrite != nil {
-		p.DBWrite.Close()
+		sqlDB, _ := p.DBWrite.DB()
+		sqlDB.Close()
 	}
 	if p.DBRead != nil {
-		p.DBRead.Close()
+		sqlDB, _ := p.DBRead.DB()
+		sqlDB.Close()
 	}
 
 	return nil

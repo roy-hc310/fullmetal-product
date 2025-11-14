@@ -3,29 +3,30 @@ package product_repository
 import (
 	"context"
 	"fmt"
+	"time"
 
-	"github.com/jinzhu/copier"
+	"github.com/google/uuid"
 	"github.com/roy-hc310/fullmetal-product/modules/module_product/entity"
 )
 
 func (r *ProductRepository) UpdateProduct(ctx context.Context, data map[string]interface{}) (res string, err error) {
 
-	product := entity.UpdateProductParams{}
-	err = copier.Copy(&product, data)
-	if err != nil {
-		return "", err
-	}
-
-	err = r.Write.UpdateProduct(ctx, product)
-	if err != nil {
-		return "", err
-	}
-
-	str, ok := data["id"].(string)
+	id, ok := data["id"].(string)
 	if !ok {
 		return "", fmt.Errorf("failed to convert id to string")
 	}
-	res = str
 
-	return res, nil
+	productID, err := uuid.Parse(id)
+	if err != nil {
+		return res, err
+	}
+	delete(data, "id")
+	data["updated_at"] = time.Now()
+
+	err = r.PostgresInfra.DBWrite.WithContext(ctx).Model(&entity.Product{}).Where("id = ?", productID).Updates(data).Error
+	if err != nil {
+		return res, err
+	}
+
+	return id, nil
 }

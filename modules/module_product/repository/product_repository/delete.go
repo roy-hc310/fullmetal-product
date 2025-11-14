@@ -4,17 +4,18 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/roy-hc310/fullmetal-product/modules/module_product/entity"
 )
 
 func (r *ProductRepository) DeleteProduct(ctx context.Context, id string) (res string, err error) {
 	parseID, err := uuid.Parse(id)
 	if err != nil {
-		return "", err
+		return res, err
 	}
 
-	err = r.Write.DeleteProduct(ctx, parseID)
+	err = r.PostgresInfra.DBWrite.WithContext(ctx).Delete(&entity.Product{}, "id = ?", parseID).Error
 	if err != nil {
-		return "", err
+		return res, err
 	}
 	return id, nil
 }

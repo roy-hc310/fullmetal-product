@@ -4,7 +4,6 @@ package rpc_product
 
 import (
 	"context"
-	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/cloudwego/prutal"
 )
@@ -45,7 +44,7 @@ func (x *ResponseMeta) GetErrors() []string {
 type PaginationResponse struct {
 	NextCursor string `protobuf:"bytes,1,opt,name=next_cursor" json:"next_cursor,omitempty"`
 	PrevCursor string `protobuf:"bytes,2,opt,name=prev_cursor" json:"prev_cursor,omitempty"`
-	Total      int64  `protobuf:"varint,3,opt,name=total" json:"total,omitempty"`
+	Limit      int64  `protobuf:"varint,3,opt,name=limit" json:"limit,omitempty"`
 }
 
 func (x *PaginationResponse) Reset() { *x = PaginationResponse{} }
@@ -68,26 +67,26 @@ func (x *PaginationResponse) GetPrevCursor() string {
 	return ""
 }
 
-func (x *PaginationResponse) GetTotal() int64 {
+func (x *PaginationResponse) GetLimit() int64 {
 	if x != nil {
-		return x.Total
+		return x.Limit
 	}
 	return 0
 }
 
 type Product struct {
-	Id          string                 `protobuf:"bytes,1,opt,name=id" json:"id,omitempty"`
-	CreatedAt   *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=created_at" json:"created_at,omitempty"`
-	UpdatedAt   *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=updated_at" json:"updated_at,omitempty"`
-	DeletedAt   *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=deleted_at" json:"deleted_at,omitempty"`
-	BrandId     string                 `protobuf:"bytes,5,opt,name=brand_id" json:"brand_id,omitempty"`
-	CategoryId  string                 `protobuf:"bytes,6,opt,name=category_id" json:"category_id,omitempty"`
-	ShopId      string                 `protobuf:"bytes,7,opt,name=shop_id" json:"shop_id,omitempty"`
-	Name        string                 `protobuf:"bytes,8,opt,name=name" json:"name,omitempty"`
-	Sku         string                 `protobuf:"bytes,9,opt,name=sku" json:"sku,omitempty"`
-	Description string                 `protobuf:"bytes,10,opt,name=description" json:"description,omitempty"`
-	IsActive    bool                   `protobuf:"varint,11,opt,name=is_active" json:"is_active,omitempty"`
-	Status      int64                  `protobuf:"varint,12,opt,name=status" json:"status,omitempty"`
+	Id          string  `protobuf:"bytes,1,opt,name=id" json:"id,omitempty"`
+	CreatedAt   string  `protobuf:"bytes,2,opt,name=created_at" json:"created_at,omitempty"`
+	UpdatedAt   string  `protobuf:"bytes,3,opt,name=updated_at" json:"updated_at,omitempty"`
+	DeletedAt   *string `protobuf:"bytes,4,opt,name=deleted_at" json:"deleted_at,omitempty"`
+	BrandId     string  `protobuf:"bytes,5,opt,name=brand_id" json:"brand_id,omitempty"`
+	CategoryId  string  `protobuf:"bytes,6,opt,name=category_id" json:"category_id,omitempty"`
+	ShopId      string  `protobuf:"bytes,7,opt,name=shop_id" json:"shop_id,omitempty"`
+	Name        string  `protobuf:"bytes,8,opt,name=name" json:"name,omitempty"`
+	Sku         string  `protobuf:"bytes,9,opt,name=sku" json:"sku,omitempty"`
+	Description string  `protobuf:"bytes,10,opt,name=description" json:"description,omitempty"`
+	IsActive    bool    `protobuf:"varint,11,opt,name=is_active" json:"is_active,omitempty"`
+	Status      int64   `protobuf:"varint,12,opt,name=status" json:"status,omitempty"`
 }
 
 func (x *Product) Reset() { *x = Product{} }
@@ -103,25 +102,25 @@ func (x *Product) GetId() string {
 	return ""
 }
 
-func (x *Product) GetCreatedAt() *timestamppb.Timestamp {
+func (x *Product) GetCreatedAt() string {
 	if x != nil {
 		return x.CreatedAt
 	}
-	return nil
+	return ""
 }
 
-func (x *Product) GetUpdatedAt() *timestamppb.Timestamp {
+func (x *Product) GetUpdatedAt() string {
 	if x != nil {
 		return x.UpdatedAt
 	}
-	return nil
+	return ""
 }
 
-func (x *Product) GetDeletedAt() *timestamppb.Timestamp {
-	if x != nil {
-		return x.DeletedAt
+func (x *Product) GetDeletedAt() string {
+	if x != nil && x.DeletedAt != nil {
+		return *x.DeletedAt
 	}
-	return nil
+	return ""
 }
 
 func (x *Product) GetBrandId() string {
@@ -344,11 +343,12 @@ func (x *GetDetailProductResponse) GetMeta() *ResponseMeta {
 }
 
 type GetListProductRequest struct {
-	Page    *string `protobuf:"bytes,1,opt,name=page" json:"page,omitempty"`
-	Size    *string `protobuf:"bytes,2,opt,name=size" json:"size,omitempty"`
+	Page    *int64  `protobuf:"varint,1,opt,name=page" json:"page,omitempty"`
+	Size    *int64  `protobuf:"varint,2,opt,name=size" json:"size,omitempty"`
 	Cursor  *string `protobuf:"bytes,3,opt,name=cursor" json:"cursor,omitempty"`
 	SortBy  *string `protobuf:"bytes,4,opt,name=sort_by" json:"sort_by,omitempty"`
 	Keyword *string `protobuf:"bytes,5,opt,name=keyword" json:"keyword,omitempty"`
+	ShopId  *string `protobuf:"bytes,6,opt,name=shop_id" json:"shop_id,omitempty"`
 }
 
 func (x *GetListProductRequest) Reset() { *x = GetListProductRequest{} }
@@ -359,18 +359,18 @@ func (x *GetListProductRequest) Marshal(in []byte) ([]byte, error) {
 
 func (x *GetListProductRequest) Unmarshal(in []byte) error { return prutal.Unmarshal(in, x) }
 
-func (x *GetListProductRequest) GetPage() string {
+func (x *GetListProductRequest) GetPage() int64 {
 	if x != nil && x.Page != nil {
 		return *x.Page
 	}
-	return ""
+	return 0
 }
 
-func (x *GetListProductRequest) GetSize() string {
+func (x *GetListProductRequest) GetSize() int64 {
 	if x != nil && x.Size != nil {
 		return *x.Size
 	}
-	return ""
+	return 0
 }
 
 func (x *GetListProductRequest) GetCursor() string {
@@ -390,6 +390,13 @@ func (x *GetListProductRequest) GetSortBy() string {
 func (x *GetListProductRequest) GetKeyword() string {
 	if x != nil && x.Keyword != nil {
 		return *x.Keyword
+	}
+	return ""
+}
+
+func (x *GetListProductRequest) GetShopId() string {
+	if x != nil && x.ShopId != nil {
+		return *x.ShopId
 	}
 	return ""
 }

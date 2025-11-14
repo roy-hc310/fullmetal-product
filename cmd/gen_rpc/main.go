@@ -34,8 +34,8 @@ func main() {
 	cmd := exec.Command("kitex",
 		"-module", "github.com/roy-hc310/fullmetal-product",
 		"-gen-path", "./pkg/gen/kitex",
-		"-I", "../fullmetal-shared/idl/product",
-		"../fullmetal-shared/idl/product/main.proto")
+		"-I", "../fullmetal-shared/idl/fullmetal-product",
+		"../fullmetal-shared/idl/fullmetal-product/product.proto")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Env = os.Environ()

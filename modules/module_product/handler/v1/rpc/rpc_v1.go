@@ -2,7 +2,9 @@ package rpc_v1
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/cloudwego/kitex/server"
 	"github.com/jinzhu/copier"
@@ -118,7 +120,18 @@ func (p *ProductRPC) GetListProduct(ctx context.Context, req *rpc_product.GetLis
 		return res, nil
 	}
 
-	err = copier.Copy(&res.Data, result)
+	err = copier.CopyWithOption(&res.Data, &result, copier.Option{
+		Converters: []copier.TypeConverter{
+			{
+				SrcType: time.Time{},
+				DstType: "",
+				Fn: func(src interface{}) (interface{}, error) {
+					t := src.(time.Time)
+					return t.Format(time.RFC3339), nil
+				},
+			},
+		},
+	})
 	if err != nil {
 		res.Meta.Errors = append(res.Meta.Errors, err.Error())
 		return res, nil
@@ -128,7 +141,7 @@ func (p *ProductRPC) GetListProduct(ctx context.Context, req *rpc_product.GetLis
 	res.Meta.Success = true
 	res.Pagination.NextCursor = pagination.NextCursor
 	res.Pagination.PrevCursor = pagination.PrevCursor
-	res.Pagination.Total = pagination.Total
+	res.Pagination.Limit = pagination.Limit
 
 	return res, nil
 }
@@ -139,16 +152,28 @@ func (p *ProductRPC) UpdateProduct(ctx context.Context, req *rpc_product.UpdateP
 		Meta: &rpc_product.ResponseMeta{},
 	}
 
-	product := map[string]interface{}{}
-	if err := copier.Copy(&product, req); err != nil {
+	// if err := copier.Copy(&product, req); err != nil {
+	// 	res.Meta.Errors = append(res.Meta.Errors, err.Error())
+	// 	return res, nil
+	// }
+
+	jsonData, err := json.Marshal(req)
+	if err != nil {
 		res.Meta.Errors = append(res.Meta.Errors, err.Error())
-		return res, err
+		return res, nil
+	}
+
+	product := map[string]interface{}{}
+	err = json.Unmarshal(jsonData, &product)
+	if err != nil {
+		res.Meta.Errors = append(res.Meta.Errors, err.Error())
+		return res, nil
 	}
 
 	result, traceID, err := p.ProductService.UpdateProduct(ctx, product)
 	if err != nil {
 		res.Meta.Errors = append(res.Meta.Errors, err.Error())
-		return res, err
+		return res, nil
 	}
 
 	res.Data.Id = result

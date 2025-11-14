@@ -10,11 +10,11 @@ CREATE TABLE IF NOT EXISTS products (
     category_id UUID,
     shop_id UUID,
     
-    name VARCHAR(255),
+    name VARCHAR(255) NOT NULL,
     sku VARCHAR(100),
     description TEXT,
-    is_active BOOLEAN,
-    status INTEGER
+    is_active BOOLEAN NOT NULL,
+    status INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS brands (

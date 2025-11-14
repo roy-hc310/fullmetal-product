@@ -10,6 +10,15 @@ sql:
         out: "modules/module_product/entity"
         sql_package: "pgx/v5"
         overrides: 
+          - db_type: "bool"
+            go_type: 
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Bool"
+          # Override all integer types globally  
+          - db_type: "int4"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Int4"
           - db_type: "uuid"
             nullable: true
             go_type: 
@@ -22,3 +31,12 @@ sql:
               import: "github.com/google/uuid"
               type: "UUID"
               pointer: false
+
+          # - column: "products.is_active"
+          #   go_type:
+          #     import: "github.com/jackc/pgx/v5/pgtype"
+          #     type: "Bool"
+          # - column: "products.status"
+          #   go_type:
+          #     import: "github.com/jackc/pgx/v5/pgtype"
+          #     type: "Int4"

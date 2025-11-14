@@ -1,12 +1,13 @@
 package dto_v1
 
 import (
+	"github.com/google/uuid"
 	"github.com/roy-hc310/fullmetal-product/pkg/base"
 )
 
 type GetListProductRequest struct {
 	base.Query
-	ShopID *string `form:"shop_id" json:"shop_id"`
+	ShopID *uuid.UUID `form:"shop_id" json:"shop_id"`
 }
 
 type GetListProductResponse struct {
@@ -23,7 +24,8 @@ type GetListProductResponse struct {
 }
 
 type PaginationResponse struct {
+	Limit      int64  `json:"limit"`
 	NextCursor string `json:"next_cursor"`
 	PrevCursor string `json:"prev_cursor"`
-	Total      int64  `json:"total"`
+	HasNext    bool   `json:"has_next"`
 }

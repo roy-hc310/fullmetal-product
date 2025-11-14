@@ -4,6 +4,7 @@ package productservice
 
 import (
 	"context"
+
 	client "github.com/cloudwego/kitex/client"
 	callopt "github.com/cloudwego/kitex/client/callopt"
 	rpc_product "github.com/roy-hc310/fullmetal-product/pkg/gen/kitex/rpc_product"

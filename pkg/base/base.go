@@ -7,10 +7,11 @@ import (
 )
 
 type Query struct {
-	Page   *string `form:"page" json:"page"`
-	Size   *string `form:"size" json:"size"`
-	Cursor *string `form:"cursor" json:"cursor"`
-	SortBy *string `form:"sort" json:"sort_by"`
+	Page   int    `form:"page" json:"page"`
+	Limit  int    `form:"limit" json:"limit"`
+	Cursor string `form:"cursor" json:"cursor"`
+	SortBy string `form:"sort" json:"sort_by"`
+	Order  string `form:"order" json:"order"`
 }
 
 type Entity struct {
