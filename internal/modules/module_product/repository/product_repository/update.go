@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/roy-hc310/fullmetal-product/modules/module_product/entity"
+	"github.com/roy-hc310/fullmetal-product/internal/modules/module_product/entity"
 )
 
 func (r *ProductRepository) UpdateProduct(ctx context.Context, data map[string]interface{}) (res string, err error) {
@@ -23,7 +23,7 @@ func (r *ProductRepository) UpdateProduct(ctx context.Context, data map[string]i
 	delete(data, "id")
 	data["updated_at"] = time.Now()
 
-	err = r.PostgresInfra.DBWrite.WithContext(ctx).Model(&entity.Product{}).Where("id = ?", productID).Updates(data).Error
+	err = r.PostgresInfra.DB.WithContext(ctx).Model(&entity.Product{}).Where("id = ?", productID).Updates(data).Error
 	if err != nil {
 		return res, err
 	}

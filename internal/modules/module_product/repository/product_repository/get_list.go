@@ -6,14 +6,14 @@ import (
 	"strings"
 
 	"github.com/jinzhu/copier"
-	dto_v1 "github.com/roy-hc310/fullmetal-product/modules/module_product/dto/v1"
-	"github.com/roy-hc310/fullmetal-product/modules/module_product/entity"
+	dto_v1 "github.com/roy-hc310/fullmetal-product/internal/modules/module_product/dto/v1"
+	"github.com/roy-hc310/fullmetal-product/internal/modules/module_product/entity"
 	"github.com/roy-hc310/fullmetal-product/pkg/constant"
 )
 
 func (r *ProductRepository) GetListProduct(ctx context.Context, params *dto_v1.GetListProductRequest) (res []*dto_v1.GetListProductResponse, pagination *dto_v1.PaginationResponse, err error) {
 
-	db := r.PostgresInfra.DBRead.WithContext(ctx).Model(&entity.Product{})
+	db := r.PostgresInfra.DB.WithContext(ctx).Model(&entity.Product{})
 
 	if params.ShopID != nil {
 		db = db.Where("shop_id = ?", params.ShopID)

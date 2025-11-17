@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 
-	dto_v1 "github.com/roy-hc310/fullmetal-product/modules/module_product/dto/v1"
-	"github.com/roy-hc310/fullmetal-product/modules/module_product/entity"
+	dto_v1 "github.com/roy-hc310/fullmetal-product/internal/modules/module_product/dto/v1"
+	"github.com/roy-hc310/fullmetal-product/internal/modules/module_product/entity"
 	// product_entity "github.com/roy-hc310/fullmetal-product/modules/module_product/entity"
 	// "github.com/roy-hc310/hannie-product/package/database"
 )

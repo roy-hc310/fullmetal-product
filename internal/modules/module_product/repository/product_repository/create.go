@@ -3,7 +3,7 @@ package product_repository
 import (
 	"context"
 
-	"github.com/roy-hc310/fullmetal-product/modules/module_product/entity"
+	"github.com/roy-hc310/fullmetal-product/internal/modules/module_product/entity"
 )
 
 func (r *ProductRepository) CreateProduct(ctx context.Context, data *entity.Product) (res string, err error) {
@@ -18,7 +18,7 @@ func (r *ProductRepository) CreateProduct(ctx context.Context, data *entity.Prod
 
 	// product.BrandID = uuid.MustParse(uuid.NewV7())
 
-	err = r.PostgresInfra.DBWrite.WithContext(ctx).Create(data).Error
+	err = r.PostgresInfra.DB.WithContext(ctx).Create(data).Error
 	if err != nil {
 		return res, err
 	}

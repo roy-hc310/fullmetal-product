@@ -5,13 +5,14 @@ import (
 	"fmt"
 
 	"github.com/cloudwego/kitex/server"
-	"github.com/roy-hc310/fullmetal-product/modules/module_product"
+	"github.com/roy-hc310/fullmetal-product/internal/infrastructure"
+	"github.com/roy-hc310/fullmetal-product/internal/infrastructure/cache"
+	"github.com/roy-hc310/fullmetal-product/internal/infrastructure/database"
+	"github.com/roy-hc310/fullmetal-product/internal/infrastructure/event"
+	"github.com/roy-hc310/fullmetal-product/internal/infrastructure/telemetry"
+	"github.com/roy-hc310/fullmetal-product/internal/modules/module_product"
+
 	"github.com/roy-hc310/fullmetal-product/pkg/config"
-	"github.com/roy-hc310/fullmetal-product/pkg/infrastructure"
-	"github.com/roy-hc310/fullmetal-product/pkg/infrastructure/cache"
-	"github.com/roy-hc310/fullmetal-product/pkg/infrastructure/database"
-	"github.com/roy-hc310/fullmetal-product/pkg/infrastructure/event"
-	"github.com/roy-hc310/fullmetal-product/pkg/infrastructure/telemetry"
 )
 
 type Application struct {

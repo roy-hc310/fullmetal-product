@@ -1,7 +1,7 @@
 package product_repository
 
 import (
-	"github.com/roy-hc310/fullmetal-product/pkg/infrastructure/database"
+	"github.com/roy-hc310/fullmetal-product/internal/infrastructure/database"
 )
 
 type ProductRepository struct {

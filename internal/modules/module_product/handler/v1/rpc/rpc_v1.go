@@ -8,8 +8,8 @@ import (
 
 	"github.com/cloudwego/kitex/server"
 	"github.com/jinzhu/copier"
-	dto_v1 "github.com/roy-hc310/fullmetal-product/modules/module_product/dto/v1"
-	"github.com/roy-hc310/fullmetal-product/modules/module_product/service"
+	dto_v1 "github.com/roy-hc310/fullmetal-product/internal/modules/module_product/dto/v1"
+	"github.com/roy-hc310/fullmetal-product/internal/modules/module_product/service"
 	"github.com/roy-hc310/fullmetal-product/pkg/config"
 	"github.com/roy-hc310/fullmetal-product/pkg/gen/kitex/rpc_product"
 	"github.com/roy-hc310/fullmetal-product/pkg/gen/kitex/rpc_product/productservice"

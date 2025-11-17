@@ -6,8 +6,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jinzhu/copier"
-	dto_v1 "github.com/roy-hc310/fullmetal-product/modules/module_product/dto/v1"
-	"github.com/roy-hc310/fullmetal-product/modules/module_product/entity"
+	dto_v1 "github.com/roy-hc310/fullmetal-product/internal/modules/module_product/dto/v1"
+	"github.com/roy-hc310/fullmetal-product/internal/modules/module_product/entity"
 	"gorm.io/gorm"
 )
 
@@ -20,7 +20,7 @@ func (r *ProductRepository) GetDetailProduct(ctx context.Context, id string) (re
 
 	product := entity.Product{}
 
-	err = r.PostgresInfra.DBRead.WithContext(ctx).Where("id = ?", parseID).First(&product).Error
+	err = r.PostgresInfra.DB.WithContext(ctx).Where("id = ?", parseID).First(&product).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return res, nil

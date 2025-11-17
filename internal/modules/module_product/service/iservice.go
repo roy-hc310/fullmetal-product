@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	dto_v1 "github.com/roy-hc310/fullmetal-product/modules/module_product/dto/v1"
+	dto_v1 "github.com/roy-hc310/fullmetal-product/internal/modules/module_product/dto/v1"
 )
 
 type ProductServiceInterface interface {
