@@ -14,5 +14,5 @@ type ProductRepositoryInteface interface {
 	DeleteProduct(ctx context.Context, id string) (res string, err error)
 	GetDetailProduct(ctx context.Context, id string) (res *dto_v1.GetDetailProductResponse, err error)
 	GetListProduct(ctx context.Context, data *dto_v1.GetListProductRequest) (res []*dto_v1.GetListProductResponse, pagination *dto_v1.PaginationResponse, err error)
-	UpdateProduct(ctx context.Context, data map[string]interface{}) (res string, err error)
+	UpdateProduct(ctx context.Context, id string, data map[string]interface{}) (res string, err error)
 }

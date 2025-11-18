@@ -10,7 +10,6 @@ import (
 	"github.com/jinzhu/copier"
 	dto_v1 "github.com/roy-hc310/fullmetal-product/internal/modules/module_product/dto/v1"
 	"github.com/roy-hc310/fullmetal-product/internal/modules/module_product/service"
-	"github.com/roy-hc310/fullmetal-product/pkg/config"
 	"github.com/roy-hc310/fullmetal-product/pkg/gen/kitex/rpc_product"
 	"github.com/roy-hc310/fullmetal-product/pkg/gen/kitex/rpc_product/productservice"
 )
@@ -19,7 +18,7 @@ type ProductRPC struct {
 	ProductService service.ProductServiceInterface
 }
 
-func NewProductRPC(env *config.Env, svr *server.Server, productService service.ProductServiceInterface) *ProductRPC {
+func NewProductRPC(svr *server.Server, productService service.ProductServiceInterface) *ProductRPC {
 	productRPC := &ProductRPC{
 		ProductService: productService,
 	}
@@ -152,10 +151,7 @@ func (p *ProductRPC) UpdateProduct(ctx context.Context, req *rpc_product.UpdateP
 		Meta: &rpc_product.ResponseMeta{},
 	}
 
-	// if err := copier.Copy(&product, req); err != nil {
-	// 	res.Meta.Errors = append(res.Meta.Errors, err.Error())
-	// 	return res, nil
-	// }
+	id := req.Id
 
 	jsonData, err := json.Marshal(req)
 	if err != nil {
@@ -170,7 +166,9 @@ func (p *ProductRPC) UpdateProduct(ctx context.Context, req *rpc_product.UpdateP
 		return res, nil
 	}
 
-	result, traceID, err := p.ProductService.UpdateProduct(ctx, product)
+	delete(product, "id")
+
+	result, traceID, err := p.ProductService.UpdateProduct(ctx, id, product)
 	if err != nil {
 		res.Meta.Errors = append(res.Meta.Errors, err.Error())
 		return res, nil

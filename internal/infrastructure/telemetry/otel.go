@@ -15,7 +15,7 @@ import (
 )
 
 type OtelInfra struct {
-	Tracer         trace.Tracer
+	tracer         trace.Tracer
 	TracerProvider *sdktrace.TracerProvider
 }
 
@@ -57,7 +57,7 @@ func NewOtelInfra(ctx context.Context) (*OtelInfra, error) {
 	tracer := otel.Tracer("fullmetal-product-tracer")
 
 	return &OtelInfra{
-		Tracer:         tracer,
+		tracer:         tracer,
 		TracerProvider: tracerProvider,
 	}, nil
 }
@@ -67,4 +67,8 @@ func (o *OtelInfra) Shutdown(ctx context.Context) error {
 		return nil
 	}
 	return o.TracerProvider.Shutdown(ctx)
+}
+
+func (o *OtelInfra) Tracer() trace.Tracer {
+	return o.tracer
 }

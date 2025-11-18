@@ -13,7 +13,7 @@ func (s *ProductService) GetDetailProduct(ctx context.Context, id string) (res *
 	cacheKey := fmt.Sprintf("product:%s", id)
 
 	// 1. Try cache
-	val, cacheErr := s.ProductCache.Get(ctx, cacheKey)
+	val, cacheErr := s.Cache.Get(ctx, cacheKey)
 	if cacheErr == nil && val != "" {
 		// Cache hit → unmarshal JSON
 		var cached dto_v1.GetDetailProductResponse
@@ -24,7 +24,7 @@ func (s *ProductService) GetDetailProduct(ctx context.Context, id string) (res *
 	}
 
 	// 2. Cache miss → fetch from DB
-	res, err = s.ProductRepository.GetDetailProduct(ctx, id)
+	res, err = s.Repository.GetDetailProduct(ctx, id)
 	if err != nil {
 		return nil, traceID, err
 	}
@@ -33,7 +33,7 @@ func (s *ProductService) GetDetailProduct(ctx context.Context, id string) (res *
 	if res != nil {
 		jsonData, marshalErr := json.Marshal(res)
 		if marshalErr == nil {
-			_ = s.ProductCache.Set(ctx, cacheKey, string(jsonData), time.Hour)
+			_ = s.Cache.Set(ctx, cacheKey, string(jsonData), time.Hour)
 		}
 	}
 

@@ -7,7 +7,7 @@ import (
 )
 
 func (s *ProductService) GetListProduct(ctx context.Context, data *dto_v1.GetListProductRequest) (res []*dto_v1.GetListProductResponse, pagination *dto_v1.PaginationResponse, traceID string, err error) {
-	res, pagination, err = s.ProductRepository.GetListProduct(ctx, data)
+	res, pagination, err = s.Repository.GetListProduct(ctx, data)
 	if err != nil {
 		return nil, nil, traceID, err
 	}
