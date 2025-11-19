@@ -2,6 +2,7 @@ package consumer_v1
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	dto_v1 "github.com/roy-hc310/fullmetal-product/internal/modules/module_product/dto/v1"
@@ -23,6 +24,10 @@ func (h *ProductConsumer) HandleMessage(ctx context.Context, topic string, value
 	switch topic {
 	case constant.DefaultTopic:
 		data := &dto_v1.CreateProductRequest{}
+
+		if err := json.Unmarshal(value, data); err != nil {
+			return err
+		}
 		_, _, err := h.ProductService.CreateProduct(ctx, data)
 		if err != nil {
 			return err

@@ -6,9 +6,9 @@ CREATE TABLE IF NOT EXISTS products (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP DEFAULT NULL,
 
-    brand_id UUID,
-    category_id UUID,
-    shop_id UUID,
+    -- brand_id UUID,
+    -- category_id UUID,
+    -- shop_id UUID,
     
     name VARCHAR(255) NOT NULL,
     sku VARCHAR(100),
@@ -17,39 +17,39 @@ CREATE TABLE IF NOT EXISTS products (
     status INTEGER NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS brands (
-    id UUID NOT NULL PRIMARY KEY,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP DEFAULT NULL,
+-- CREATE TABLE IF NOT EXISTS brands (
+--     id UUID NOT NULL PRIMARY KEY,
+--     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+--     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+--     deleted_at TIMESTAMP DEFAULT NULL,
 
-    name VARCHAR(255) NOT NULL,
-    description TEXT NOT NULL
-);
+--     name VARCHAR(255) NOT NULL,
+--     description TEXT NOT NULL
+-- );
 
-CREATE TABLE IF NOT EXISTS categories (
-    id UUID NOT NULL PRIMARY KEY,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP DEFAULT NULL,
+-- CREATE TABLE IF NOT EXISTS categories (
+--     id UUID NOT NULL PRIMARY KEY,
+--     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+--     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+--     deleted_at TIMESTAMP DEFAULT NULL,
 
-    parent_id UUID,
+--     parent_id UUID,
 
-    name VARCHAR(255) NOT NULL,
-    description TEXT NOT NULL
-);
+--     name VARCHAR(255) NOT NULL,
+--     description TEXT NOT NULL
+-- );
 
-CREATE TABLE IF NOT EXISTS product_images (
-    id UUID NOT NULL PRIMARY KEY,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP DEFAULT NULL,
+-- CREATE TABLE IF NOT EXISTS product_images (
+--     id UUID NOT NULL PRIMARY KEY,
+--     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+--     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+--     deleted_at TIMESTAMP DEFAULT NULL,
 
-    product_id UUID NOT NULL,
-    variant_id UUID,
+--     product_id UUID NOT NULL,
+--     variant_id UUID,
 
-    image_url TEXT NOT NULL,
-    is_primary BOOLEAN NOT NULL
-);
+--     image_url TEXT NOT NULL,
+--     is_primary BOOLEAN NOT NULL
+-- );
 
 COMMIT;

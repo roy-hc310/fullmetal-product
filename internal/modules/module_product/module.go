@@ -12,20 +12,20 @@ import (
 )
 
 type ModuleProduct struct {
-	ProductConsumer   *consumer_v1.ProductConsumer
-	ProductRPC        *rpc_v1.ProductRPC
-	ProductService    *product_service.ProductService
-	ProductRepository *product_repository.ProductRepository
+	Consumer   *consumer_v1.ProductConsumer
+	RPC        *rpc_v1.ProductRPC
+	Service    *product_service.ProductService
+	Repository *product_repository.ProductRepository
 }
 
-func NewModuleProduct(svr *server.Server, infra *infrastructure.Infrastructure) *ModuleProduct {
+func NewModuleProduct(ctx context.Context, svr *server.Server, infra *infrastructure.Infrastructure) *ModuleProduct {
 	module := &ModuleProduct{}
 
-	module.ProductRepository = product_repository.NewProductRepository(infra.Postgres)
-	module.ProductService = product_service.NewProductService(infra, module.ProductRepository)
-	module.ProductConsumer = consumer_v1.NewProductConsumer(module.ProductService)
-	module.ProductRPC = rpc_v1.NewProductRPC(svr, module.ProductService)
-	go infra.Kafka.RegisterConsumer(context.Background(), module.ProductConsumer)
+	module.Repository = product_repository.NewProductRepository(infra.Postgres)
+	module.Service = product_service.NewProductService(infra, module.Repository)
+	module.Consumer = consumer_v1.NewProductConsumer(module.Service)
+	module.RPC = rpc_v1.NewProductRPC(svr, module.Service)
+	go infra.Kafka.RegisterConsumer(ctx, module.Consumer)
 
 	return module
 }

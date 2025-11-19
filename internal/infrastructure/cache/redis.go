@@ -42,6 +42,10 @@ func (r *RedisInfra) Shutdown() error {
 }
 
 func (r *RedisInfra) Get(ctx context.Context, key string) (string, error) {
+	if r == nil || r.Client == nil {
+		return "", nil
+	}
+
 	val, err := r.Client.WithContext(ctx).Get(key).Result()
 	if err != nil {
 		return "", fmt.Errorf("failed to get key '%s': %w", key, err)
@@ -49,6 +53,9 @@ func (r *RedisInfra) Get(ctx context.Context, key string) (string, error) {
 	return val, nil
 }
 func (r *RedisInfra) Set(ctx context.Context, key string, value string, expiration time.Duration) error {
+	if r == nil || r.Client == nil {
+		return nil
+	}
 	err := r.Client.WithContext(ctx).Set(key, value, expiration).Err()
 	if err != nil {
 		return err
@@ -57,6 +64,10 @@ func (r *RedisInfra) Set(ctx context.Context, key string, value string, expirati
 	return nil
 }
 func (r *RedisInfra) Delete(ctx context.Context, key string) error {
+	if r == nil || r.Client == nil {
+		return nil
+	}
+
 	_, err := r.Client.WithContext(ctx).Del(key).Result()
 	if err != nil {
 		return err
@@ -65,6 +76,10 @@ func (r *RedisInfra) Delete(ctx context.Context, key string) error {
 	return nil
 }
 func (r *RedisInfra) Exists(ctx context.Context, key string) (bool, error) {
+	if r == nil || r.Client == nil {
+		return false, nil
+	}
+
 	result, err := r.Client.WithContext(ctx).Exists(key).Result()
 	if err != nil {
 		return false, err

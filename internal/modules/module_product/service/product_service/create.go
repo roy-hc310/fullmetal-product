@@ -3,6 +3,7 @@ package product_service
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jinzhu/copier"
@@ -40,7 +41,7 @@ func (s *ProductService) CreateProduct(ctx context.Context, data *dto_v1.CreateP
 		fmt.Printf("Failed to convert to JSON: %v\n", err)
 	}
 
-	s.Cache.Set(ctx, cacheKey, jsonData, 0)
+	s.Cache.Set(ctx, cacheKey, jsonData, 24*time.Hour)
 
 	s.Event.Publish(ctx, constant.ProductCreateTopic, product.ID.String(), []byte(jsonData))
 	return res, traceID, err

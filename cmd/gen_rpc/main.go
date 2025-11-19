@@ -4,14 +4,19 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 )
 
 func main() {
+	goBin := filepath.Join(os.Getenv("HOME"), "go", "bin")
+
+	os.Setenv("PATH", fmt.Sprintf("%s:%s", goBin, os.Getenv("PATH")))
 	if _, err := exec.LookPath("kitex"); err != nil {
 		fmt.Println("⚠️  kitex not found — installing now...")
 		installCmd := exec.Command("go", "install", "github.com/cloudwego/kitex/tool/cmd/kitex@latest")
 		installCmd.Stdout = os.Stdout
 		installCmd.Stderr = os.Stderr
+		installCmd.Env = os.Environ()
 
 		if err := installCmd.Run(); err != nil {
 			fmt.Printf("❌  Failed to install kitex: %v\n", err)
@@ -24,6 +29,7 @@ func main() {
 		installCmd := exec.Command("go", "install", "google.golang.org/protobuf/cmd/protoc-gen-go@latest")
 		installCmd.Stdout = os.Stdout
 		installCmd.Stderr = os.Stderr
+		installCmd.Env = os.Environ()
 
 		if err := installCmd.Run(); err != nil {
 			fmt.Printf("❌  Failed to install protoc-gen-go: %v\n", err)

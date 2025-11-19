@@ -50,7 +50,7 @@ func NewApplication(ctx context.Context, env *config.Env, svr *server.Server) (*
 	infrastructure.Otel = otel
 	application.Infrastructure = infrastructure
 
-	application.ModuleProduct = module_product.NewModuleProduct(svr, infrastructure)
+	application.ModuleProduct = module_product.NewModuleProduct(ctx, svr, infrastructure)
 
 	return application, nil
 }

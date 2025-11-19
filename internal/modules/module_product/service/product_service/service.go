@@ -21,7 +21,7 @@ func NewProductService(infra *infrastructure.Infrastructure, productRepository *
 	return &ProductService{
 		Repository: productRepository,
 		Cache:      infra.Redis,
-		// ProductEvent:      infra.Kafka,
-		Otel: infra.Otel,
+		Event:      infra.Kafka,
+		Otel:       infra.Otel,
 	}
 }
