@@ -2,7 +2,6 @@ package bootstrap
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/cloudwego/kitex/server"
 	"github.com/roy-hc310/fullmetal-product/internal/infrastructure"
@@ -13,6 +12,7 @@ import (
 	"github.com/roy-hc310/fullmetal-product/internal/modules/module_product"
 
 	"github.com/roy-hc310/fullmetal-product/pkg/config"
+	"github.com/roy-hc310/fullmetal-product/pkg/logger"
 )
 
 type Application struct {
@@ -26,26 +26,26 @@ func NewApplication(ctx context.Context, env *config.Env, svr *server.Server) (*
 
 	redis, err := cache.NewRedisInfra()
 	if err != nil {
-		fmt.Printf("Failed to initialize Redis: %v\n", err)
+		logger.Log.Error().Err(err).Msg("Failed to initialize Redis")
 	}
 	infrastructure.Redis = redis
 
 	postgres, err := database.NewPostgresInfra(ctx)
 	if err != nil {
-		fmt.Printf("Failed to initialize Postgres: %v", err)
+		logger.Log.Fatal().Err(err).Msg("Failed to initialize Postgres")
 		return nil, err
 	}
 	infrastructure.Postgres = postgres
 
 	kafka, err := event.NewKafkaInfra()
 	if err != nil {
-		fmt.Printf("Failed to initialize Kafka: %v\n", err)
+		logger.Log.Error().Err(err).Msg("Failed to initialize Kafka")
 	}
 	infrastructure.Kafka = kafka
 
 	otel, err := telemetry.NewOtelInfra(ctx)
 	if err != nil {
-		fmt.Printf("Failed to initialize OpenTelemetry: %v\n", err)
+		logger.Log.Error().Err(err).Msg("Failed to initialize OpenTelemetry")
 	}
 	infrastructure.Otel = otel
 	application.Infrastructure = infrastructure
@@ -59,21 +59,21 @@ func (app *Application) Shutdown(ctx context.Context) {
 	if app.Infrastructure.Redis != nil {
 		err := app.Infrastructure.Redis.Shutdown()
 		if err != nil {
-			fmt.Printf("Failed to shutdown Redis: %v\n", err)
+			logger.Log.Error().Err(err).Msg("Failed to shutdown Redis")
 		}
 	}
 
 	if app.Infrastructure.Kafka != nil {
 		err := app.Infrastructure.Kafka.Shutdown(ctx)
 		if err != nil {
-			fmt.Printf("Failed to shutdown Kafka: %v\n", err)
+			logger.Log.Error().Err(err).Msg("Failed to shutdown Kafka")
 		}
 	}
 
 	if app.Infrastructure.Otel != nil {
 		err := app.Infrastructure.Otel.Shutdown(ctx)
 		if err != nil {
-			fmt.Printf("Failed to shutdown OpenTelemetry: %v\n", err)
+			logger.Log.Error().Err(err).Msg("Failed to shutdown OpenTelemetry")
 		}
 	}
 }

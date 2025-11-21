@@ -8,16 +8,6 @@ import (
 
 func (r *ProductRepository) CreateProduct(ctx context.Context, data *entity.Product) (res string, err error) {
 
-	// product := entity.Product{
-	// 	ID: uuid.Must(uuid.NewV7()),
-	// }
-	// err = copier.Copy(&product, data)
-	// if err != nil {
-	// 	return "", err
-	// }
-
-	// product.BrandID = uuid.MustParse(uuid.NewV7())
-
 	err = r.PostgresInfra.DB.WithContext(ctx).Create(data).Error
 	if err != nil {
 		return res, err

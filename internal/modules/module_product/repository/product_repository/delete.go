@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/roy-hc310/fullmetal-product/internal/modules/module_product/entity"
+	"gorm.io/gorm"
 )
 
 func (r *ProductRepository) DeleteProduct(ctx context.Context, id string) (res string, err error) {
@@ -13,9 +14,13 @@ func (r *ProductRepository) DeleteProduct(ctx context.Context, id string) (res s
 		return res, err
 	}
 
-	err = r.PostgresInfra.DB.WithContext(ctx).Delete(&entity.Product{}, "id = ?", parseID).Error
-	if err != nil {
+	result := r.PostgresInfra.DB.WithContext(ctx).Delete(&entity.Product{}, "id = ?", parseID)
+	if result.Error != nil {
 		return res, err
+	}
+
+	if result.RowsAffected == 0 {
+		return res, gorm.ErrRecordNotFound
 	}
 	return id, nil
 }

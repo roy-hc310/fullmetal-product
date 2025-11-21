@@ -15,6 +15,8 @@ func (r *ProductRepository) UpdateProduct(ctx context.Context, id string, data m
 		return res, err
 	}
 
+	delete(data, "id")
+	delete(data, "created_at")
 	data["updated_at"] = time.Now()
 
 	err = r.PostgresInfra.DB.WithContext(ctx).Model(&entity.Product{}).Where("id = ?", productID).Updates(data).Error

@@ -7,3 +7,10 @@ const (
 	ProductUpdateTopic = "product.update"
 	ProductDeleteTopic = "product.delete"
 )
+
+var KafkaTopics = []string{
+	DefaultTopic,
+	ProductCreateTopic,
+	ProductUpdateTopic,
+	ProductDeleteTopic,
+}

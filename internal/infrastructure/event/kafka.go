@@ -2,12 +2,11 @@ package event
 
 import (
 	"context"
-	"fmt"
-	"log"
 	"strings"
 
 	"github.com/roy-hc310/fullmetal-product/pkg/config"
 	"github.com/roy-hc310/fullmetal-product/pkg/constant"
+	"github.com/roy-hc310/fullmetal-product/pkg/logger"
 	"github.com/twmb/franz-go/pkg/kgo"
 )
 
@@ -29,14 +28,14 @@ func NewKafkaInfra() (*KafkaInfra, error) {
 	if g := strings.TrimSpace(config.GlobalEnv.KafkaConsumerGroup); g != "" {
 		opts = append(opts,
 			kgo.ConsumerGroup(g),
-			kgo.ConsumeTopics(constant.DefaultTopic, constant.ProductCreateTopic),
+			kgo.ConsumeTopics(constant.KafkaTopics...),
 			kgo.DisableAutoCommit(),
 			kgo.BlockRebalanceOnPoll(),
 			kgo.OnPartitionsAssigned(func(ctx context.Context, cl *kgo.Client, assignments map[string][]int32) {
-				log.Printf("kafka: partitions assigned: %v", assignments)
+				logger.Info(ctx).Interface("assignments", assignments).Msg("Kafka partitions assigned")
 			}),
 			kgo.OnPartitionsRevoked(func(ctx context.Context, cl *kgo.Client, revoked map[string][]int32) {
-				log.Printf("kafka: partitions revoked: %v", revoked)
+				logger.Info(ctx).Interface("revoked", revoked).Msg("Kafka partitions revoked")
 			}),
 		)
 	}
@@ -91,8 +90,11 @@ func (k *KafkaInfra) Publish(ctx context.Context, topic string, key string, valu
 	results := k.Client.ProduceSync(ctx, record)
 
 	if err := results.FirstErr(); err != nil {
-		fmt.Println(err)
-		return nil
+		logger.Error(ctx).Err(err).
+			Str("topic", topic).
+			Str("key", key).
+			Msg("Failed to publish message to Kafka")
+		return err
 	}
 
 	return nil
@@ -117,7 +119,10 @@ func (k *KafkaInfra) RegisterConsumer(ctx context.Context, handler MessageHandle
 
 			if errs := fetches.Errors(); len(errs) > 0 {
 				for _, err := range errs {
-					log.Default().Println(err)
+					logger.Error(ctx).Err(err.Err).
+						Str("topic", err.Topic).
+						Int32("partition", err.Partition).
+						Msg("Kafka fetch error")
 				}
 			}
 
@@ -125,7 +130,11 @@ func (k *KafkaInfra) RegisterConsumer(ctx context.Context, handler MessageHandle
 
 			fetches.EachRecord(func(record *kgo.Record) {
 				if err := k.handler.HandleMessage(ctx, record.Topic, record.Value); err != nil {
-					log.Println("Error handling message:", err)
+					logger.Error(ctx).Err(err).
+						Str("topic", record.Topic).
+						Int32("partition", record.Partition).
+						Int64("offset", record.Offset).
+						Msg("Error handling Kafka message")
 					return
 				}
 
@@ -134,7 +143,9 @@ func (k *KafkaInfra) RegisterConsumer(ctx context.Context, handler MessageHandle
 
 			if len(totalSuccessRecords) > 0 {
 				if err := k.Client.CommitRecords(ctx, totalSuccessRecords...); err != nil {
-					log.Default().Println(err)
+					logger.Error(ctx).Err(err).
+						Int("record_count", len(totalSuccessRecords)).
+						Msg("Failed to commit Kafka records")
 				}
 			}
 

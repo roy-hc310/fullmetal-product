@@ -2,8 +2,6 @@ package rpc_v1
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/cloudwego/kitex/server"
@@ -12,6 +10,8 @@ import (
 	"github.com/roy-hc310/fullmetal-product/internal/modules/module_product/service"
 	"github.com/roy-hc310/fullmetal-product/pkg/gen/kitex/rpc_product"
 	"github.com/roy-hc310/fullmetal-product/pkg/gen/kitex/rpc_product/productservice"
+	"github.com/roy-hc310/fullmetal-product/pkg/logger"
+	"github.com/roy-hc310/fullmetal-product/pkg/utils"
 )
 
 type ProductRPC struct {
@@ -24,12 +24,13 @@ func NewProductRPC(svr *server.Server, productService service.ProductServiceInte
 	}
 	err := productservice.RegisterService(*svr, productRPC)
 	if err != nil {
-		fmt.Printf("Failed to register RPC service: %v\n", err)
+		logger.Log.Fatal().Err(err).Msg("Failed to register RPC service")
 	}
 	return productRPC
 }
 
 func (p *ProductRPC) CreateProduct(ctx context.Context, req *rpc_product.CreateProductRequest) (res *rpc_product.CreateProductResponse, err error) {
+
 	res = &rpc_product.CreateProductResponse{
 		Data: &rpc_product.ProductID{},
 		Meta: &rpc_product.ResponseMeta{},
@@ -38,13 +39,13 @@ func (p *ProductRPC) CreateProduct(ctx context.Context, req *rpc_product.CreateP
 	product := &dto_v1.CreateProductRequest{}
 	if err := copier.Copy(product, req); err != nil {
 		res.Meta.Errors = append(res.Meta.Errors, err.Error())
-		return res, err
+		return res, nil
 	}
 
 	result, traceID, err := p.ProductService.CreateProduct(ctx, product)
 	if err != nil {
 		res.Meta.Errors = append(res.Meta.Errors, err.Error())
-		return res, err
+		return res, nil
 	}
 
 	res.Data.Id = result
@@ -63,7 +64,7 @@ func (p *ProductRPC) DeleteProduct(ctx context.Context, req *rpc_product.DeleteP
 	result, traceID, err := p.ProductService.DeleteProduct(ctx, req.Id)
 	if err != nil {
 		res.Meta.Errors = append(res.Meta.Errors, err.Error())
-		return res, err
+		return res, nil
 	}
 
 	res.Data.Id = result
@@ -153,14 +154,14 @@ func (p *ProductRPC) UpdateProduct(ctx context.Context, req *rpc_product.UpdateP
 
 	id := req.Id
 
-	jsonData, err := json.Marshal(req)
+	jsonData, err := utils.StructToJSON(req)
 	if err != nil {
 		res.Meta.Errors = append(res.Meta.Errors, err.Error())
 		return res, nil
 	}
 
 	product := map[string]interface{}{}
-	err = json.Unmarshal(jsonData, &product)
+	err = utils.JSONToStruct(jsonData, &product)
 	if err != nil {
 		res.Meta.Errors = append(res.Meta.Errors, err.Error())
 		return res, nil

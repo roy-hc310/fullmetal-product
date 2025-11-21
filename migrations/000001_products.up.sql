@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS products (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP DEFAULT NULL,
+    user_id UUID,
 
     -- brand_id UUID,
     -- category_id UUID,

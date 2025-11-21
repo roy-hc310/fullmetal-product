@@ -1,7 +1,14 @@
 package constant
 
 const (
-	DefaultLimit  = 10
-	DefaultSortBy = "id"
-	DefaultOrder  = "desc"
+	DefaultLimit  int    = 10
+	DefaultSortBy string = "id"
+	DefaultOrder  string = "desc"
+)
+
+type key string
+
+const (
+	UserID key = "user_id"
+	Role   key = "role"
 )
